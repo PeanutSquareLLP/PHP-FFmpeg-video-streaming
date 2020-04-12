@@ -42,7 +42,7 @@ final class X264 extends StreamFormat
      */
     public function getAvailableVideoCodecs()
     {
-        return ['libx264', 'h264', 'h264_afm'];
+        return ['libx264', 'h264', 'h264_afm','h264_cuvid', 'h264_nvenc'];
     }
 
     /**
