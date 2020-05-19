@@ -17,6 +17,10 @@ use Streaming\Filters\StreamFilterInterface;
 class HLS extends Streaming
 {
 
+    
+    /** @var bool */
+    private $gpu = false;
+
     /** @var string */
     private $hls_time = 10;
 
@@ -302,4 +306,16 @@ class HLS extends Streaming
 
         parent::__destruct();
     }
+    
+    public function getGpu(): bool {
+        return $this->gpu;
+    }
+
+    public function setGpu(bool $gpu) {
+        $this->gpu = $gpu;
+        return $this;
+    }
+
+
+    
 }

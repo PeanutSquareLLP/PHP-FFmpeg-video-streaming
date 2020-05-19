@@ -1,14 +1,4 @@
 <?php
-
-/**
- * This file is part of the PHP-FFmpeg-video-streaming package.
- *
- * (c) Amin Yazdanpanah <contact@aminyazdanpanah.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Streaming\Filters;
 
 use Streaming\StreamInterface;
@@ -111,21 +101,36 @@ class HLSFilter extends StreamFilter
      */
     private function initArgs(Representation $rep): array
     {
-        return [
-            "-s:v", $rep->getResize(),
-            "-crf", "20",
+        $codecs = [];
+        
+        $params = [
             "-sc_threshold", "0",
             "-g", "48",
             "-keyint_min", "48",
             "-hls_list_size", $this->hls->getHlsListSize(),
             "-hls_time", $this->hls->getHlsTime(),
-            "-hls_allow_cache", (int)$this->hls->isHlsAllowCache(),
+            "-hls_allow_cache", (int) $this->hls->isHlsAllowCache(),
             "-b:v", $rep->getKiloBitrate() . "k",
             "-maxrate", intval($rep->getKiloBitrate() * 1.2) . "k",
             "-hls_segment_type", $this->hls->getHlsSegmentType(),
             "-hls_fmp4_init_filename", $this->getInitFilename(),
             "-hls_segment_filename", $this->getSegmentFilename($rep)
         ];
+        
+        if($this->hls->getGpu()){
+            $codecs =  [
+                "-vf scale_npp={$rep->getWidth()}:{$rep->getHeight()}" => "",
+                "-rc:v" => "vbr_hq",
+                "-cq:v" =>  19
+            ];
+        } else {
+            $codecs = [
+                "-s:v", $rep->getResize(),
+                "-crf", "20"
+            ];
+        }
+        
+        return array_merge($codecs, $params);
     }
 
     /**
