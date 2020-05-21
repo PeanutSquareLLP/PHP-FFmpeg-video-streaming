@@ -109,7 +109,7 @@ class HLSFilter extends StreamFilter
             "-keyint_min", "48",
             "-hls_list_size", $this->hls->getHlsListSize(),
             "-hls_time", $this->hls->getHlsTime(),
-            "-hls_allow_cache", (int) $this->hls->isHlsAllowCache(),
+            "-hls_allow_cache", (int)$this->hls->isHlsAllowCache(),
             "-b:v", $rep->getKiloBitrate() . "k",
             "-maxrate", intval($rep->getKiloBitrate() * 1.2) . "k",
             "-hls_segment_type", $this->hls->getHlsSegmentType(),
@@ -118,8 +118,11 @@ class HLSFilter extends StreamFilter
         ];
         
         if($this->hls->getGpu()){
+            var_dump($rep->getWidth() . $rep->getHeight());
+            exit;
+            
             $codecs =  [
-                "-vf scale_npp={$rep->getWidth()}:{$rep->getHeight()}" => "",
+                "-vf scale_npp=" => "{$rep->getWidth()}:{$rep->getHeight()}",
                 "-rc:v" => "vbr_hq",
                 "-cq:v" =>  19
             ];
