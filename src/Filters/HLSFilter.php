@@ -118,7 +118,7 @@ class HLSFilter extends StreamFilter
             "-hls_segment_filename", $this->getSegmentFilename($rep)
         ];
 
-        if ($this->hls->getGpu()) {
+        if ($this->hls->isGpuBased()) {
 
             $codecs = [
                 "-vf", "scale_npp={$rep->getWidth()}:{$rep->getHeight()}",
