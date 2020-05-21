@@ -18,8 +18,15 @@ use Streaming\RepsCollection;
 
 trait Representations
 {
+
+    /** @var RepsCollection */
+    protected $repsBackLog;
+
     /** @var RepsCollection */
     protected $reps;
+
+    /** @var bool */
+    public $isAutoGenerateRepresentations;
 
     /**
      * add a representation
@@ -28,6 +35,7 @@ trait Representations
      */
     public function addRepresentation(RepresentationInterface $rep)
     {
+        $this->repsBackLog->add($rep);
         $this->reps->add($rep);
         return $this;
     }
@@ -51,6 +59,8 @@ trait Representations
      */
     public function autoGenerateRepresentations(array $sides = null, array $k_bitrate = null, string $sort = "asc")
     {
+        $this->isAutoGenerateRepresentations = true;
+
         if (!$this->format) {
             throw new InvalidArgumentException('First you must set the format of the video');
         }
@@ -71,5 +81,43 @@ trait Representations
     public function getRepresentations(): RepsCollection
     {
         return $this->reps;
+    }
+
+    /**
+     * @return RepsCollection
+     */
+    public function resetRepresentations(): RepsCollection
+    {
+        return $this->reps = new RepsCollection();
+    }
+
+    /**
+     * add backlog representations for hls gpu transcoding using an array
+     * @param array $reps
+     * @return $this
+     */
+    public function addBackLogRepresentations(array $reps)
+    {
+        array_walk($reps, [$this, 'addBackLogRepresentation']);
+        return $this;
+    }
+
+    /**
+     * @return RepsCollection
+     */
+    public function getRepsBackLog()
+    {
+        return $this->repsBackLog;
+    }
+
+    /**
+     * add a backLogRepresentation
+     * @param RepresentationInterface $rep
+     * @return $this
+     */
+    public function addBackLogRepresentation(RepresentationInterface $rep)
+    {
+        $this->repsBackLog->add($rep);
+        return $this;
     }
 }

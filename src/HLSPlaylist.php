@@ -70,8 +70,9 @@ class HLSPlaylist
     private function contents(array $description): string
     {
         $content = array_merge(["#EXTM3U", $this->getVersion()], $description);
+        $reps = ($this->hls->isAutoGenerateRepresentations) ?  $this->hls->getRepresentations() : $this->hls->getRepsBackLog() ;
 
-        foreach ($this->hls->getRepresentations() as $rep) {
+        foreach ($reps as $rep) {
             array_push($content, $this->streamInfo($rep), $this->segmentPath($rep));
         }
 

@@ -31,6 +31,7 @@ abstract class Streaming extends Stream
     public function __construct(Media $media)
     {
         $this->reps = new RepsCollection();
+        $this->repsBackLog = new RepsCollection();
         parent::__construct($media);
     }
     /**

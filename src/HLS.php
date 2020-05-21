@@ -17,9 +17,9 @@ use Streaming\Filters\StreamFilterInterface;
 class HLS extends Streaming
 {
 
-    
+
     /** @var bool */
-    private $gpu = false;
+    private $gpuBased = false;
 
     /** @var string */
     private $hls_time = 10;
@@ -281,6 +281,7 @@ class HLS extends Streaming
         $path = $this->getFilePath();
         $reps = $this->getRepresentations();
 
+
         $this->savePlaylist($path . ".m3u8");
 
         return $path . "_" . $reps->end()->getHeight() . "p.m3u8";
@@ -306,16 +307,16 @@ class HLS extends Streaming
 
         parent::__destruct();
     }
-    
-    public function getGpu(): bool {
-        return $this->gpu;
+
+    public function isGpuBased(): bool {
+        return $this->gpuBased;
     }
 
-    public function setGpu(bool $gpu) {
-        $this->gpu = $gpu;
+    public function setGpuBased(bool $gpuBased) {
+        $this->gpuBased = $gpuBased;
         return $this;
     }
 
 
-    
+
 }
