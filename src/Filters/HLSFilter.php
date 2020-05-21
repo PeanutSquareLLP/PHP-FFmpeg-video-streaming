@@ -1,4 +1,5 @@
 <?php
+
 namespace Streaming\Filters;
 
 use Streaming\StreamInterface;
@@ -6,7 +7,7 @@ use Streaming\File;
 use Streaming\Representation;
 use Streaming\Utiles;
 
-class HLSFilter extends StreamFilter
+class HLSFilter extends StreamFilter 
 {
     /**  @var \Streaming\HLS */
     private $hls;
@@ -29,7 +30,7 @@ class HLSFilter extends StreamFilter
     /**
      * @return array
      */
-    private function getFormats(): array
+    private function getFormats(): array 
     {
         $format = ['-c:v', $this->hls->getFormat()->getVideoCodec()];
         $audio_format = $this->hls->getFormat()->getAudioCodec();
@@ -42,7 +43,7 @@ class HLSFilter extends StreamFilter
      * @param bool $not_last
      * @return array
      */
-    private function playlistPath(Representation $rep, bool $not_last): array
+    private function playlistPath(Representation $rep, bool $not_last): array 
     {
         return $not_last ? [$this->dirname . "/" . $this->filename . "_" . $rep->getHeight() . "p.m3u8"] : [];
     }
@@ -51,7 +52,7 @@ class HLSFilter extends StreamFilter
      * @param Representation $rep
      * @return array
      */
-    private function getAudioBitrate(Representation $rep): array
+    private function getAudioBitrate(Representation $rep): array 
     {
         return $rep->getAudioKiloBitrate() ? ["-b:a", $rep->getAudioKiloBitrate() . "k"] : [];
     }
@@ -59,12 +60,12 @@ class HLSFilter extends StreamFilter
     /**
      * @return array
      */
-    private function getBaseURL(): array
+    private function getBaseURL(): array 
     {
         return $this->base_url ? ["-hls_base_url", $this->base_url] : [];
     }
 
-    private function flags(): array
+    private function flags(): array 
     {
         return !empty($this->hls->getFlags()) ? ["-hls_flags", implode("+", $this->hls->getFlags())] : [];
     }
@@ -72,7 +73,7 @@ class HLSFilter extends StreamFilter
     /**
      * @return array
      */
-    private function getKeyInfo(): array
+    private function getKeyInfo(): array 
     {
         return $this->hls->getHlsKeyInfoFile() ? ["-hls_key_info_file", $this->hls->getHlsKeyInfoFile()] : [];
     }
@@ -80,7 +81,7 @@ class HLSFilter extends StreamFilter
     /**
      * @return string
      */
-    private function getInitFilename(): string
+    private function getInitFilename(): string 
     {
         return $this->seg_sub_dir . $this->filename . "_" . $this->hls->getHlsFmp4InitFilename();
     }
@@ -89,7 +90,7 @@ class HLSFilter extends StreamFilter
      * @param Representation $rep
      * @return string
      */
-    private function getSegmentFilename(Representation $rep): string
+    private function getSegmentFilename(Representation $rep): string 
     {
         $ext = ($this->hls->getHlsSegmentType() === "fmp4") ? "m4s" : "ts";
         return $this->seg_filename . "_" . $rep->getHeight() . "p_%04d." . $ext;
@@ -99,32 +100,30 @@ class HLSFilter extends StreamFilter
      * @param Representation $rep
      * @return array
      */
-    private function initArgs(Representation $rep): array
+    private function initArgs(Representation $rep): array 
     {
         $codecs = [];
-        
+
         $params = [
             "-sc_threshold", "0",
             "-g", "48",
             "-keyint_min", "48",
             "-hls_list_size", $this->hls->getHlsListSize(),
             "-hls_time", $this->hls->getHlsTime(),
-            "-hls_allow_cache", (int)$this->hls->isHlsAllowCache(),
+            "-hls_allow_cache", (int) $this->hls->isHlsAllowCache(),
             "-b:v", $rep->getKiloBitrate() . "k",
             "-maxrate", intval($rep->getKiloBitrate() * 1.2) . "k",
             "-hls_segment_type", $this->hls->getHlsSegmentType(),
             "-hls_fmp4_init_filename", $this->getInitFilename(),
             "-hls_segment_filename", $this->getSegmentFilename($rep)
         ];
-        
-        if($this->hls->getGpu()){
-            var_dump($rep->getWidth() . $rep->getHeight());
-            exit;
-            
-            $codecs =  [
-                "-vf scale_npp=" => "{$rep->getWidth()}:{$rep->getHeight()}",
-                "-rc:v" => "vbr_hq",
-                "-cq:v" =>  19
+
+        if ($this->hls->getGpu()) {
+
+            $codecs = [
+                "-vf", "scale_npp={$rep->getWidth()}:{$rep->getHeight()}",
+                "-rc:v", "vbr_hq",
+                "-cq:v", 19
             ];
         } else {
             $codecs = [
@@ -132,7 +131,7 @@ class HLSFilter extends StreamFilter
                 "-crf", "20"
             ];
         }
-        
+
         return array_merge($codecs, $params);
     }
 
@@ -140,26 +139,26 @@ class HLSFilter extends StreamFilter
      * @param Representation $rep
      * @param bool $not_last
      */
-    private function getArgs(Representation $rep, bool $not_last): void
+    private function getArgs(Representation $rep, bool $not_last): void 
     {
         $this->filter = array_merge(
-            $this->filter,
-            $this->getFormats(),
-            $this->initArgs($rep),
-            $this->getAudioBitrate($rep),
-            $this->getBaseURL(),
-            $this->flags(),
-            $this->getKeyInfo(),
-            Utiles::arrayToFFmpegOpt($this->hls->getAdditionalParams()),
-            ["-strict", $this->hls->getStrict()],
-            $this->playlistPath($rep, $not_last)
+                $this->filter,
+                $this->getFormats(),
+                $this->initArgs($rep),
+                $this->getAudioBitrate($rep),
+                $this->getBaseURL(),
+                $this->flags(),
+                $this->getKeyInfo(),
+                Utiles::arrayToFFmpegOpt($this->hls->getAdditionalParams()),
+                ["-strict", $this->hls->getStrict()],
+                $this->playlistPath($rep, $not_last)
         );
     }
 
     /**
      * set segments paths
      */
-    private function segmentPaths()
+    private function segmentPaths() 
     {
         if ($this->hls->getSegSubDirectory()) {
             File::makeDir($this->dirname . "/" . $this->hls->getSegSubDirectory() . "/");
@@ -175,7 +174,7 @@ class HLSFilter extends StreamFilter
     /**
      * set paths
      */
-    private function setPaths(): void
+    private function setPaths(): void 
     {
         $this->dirname = str_replace("\\", "/", $this->hls->pathInfo(PATHINFO_DIRNAME));
         $this->filename = $this->hls->pathInfo(PATHINFO_FILENAME);
@@ -186,7 +185,7 @@ class HLSFilter extends StreamFilter
      * @param StreamInterface $stream
      * @return void
      */
-    public function streamFilter(StreamInterface $stream): void
+    public function streamFilter(StreamInterface $stream): void 
     {
         $this->hls = $stream;
         $this->setPaths();
